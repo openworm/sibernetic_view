@@ -19,7 +19,6 @@ public:
     void serialize(const std::string &file_name, sibernetic::model::particle_model <T> *model) {
         std::ifstream file(file_name.c_str(), std::ios_base::binary);
         LOADMODE mode = NOMODE;
-        bool is_model_mode = false;
         int index = 0;
         if (file.is_open()) {
             while (file.good()) {
@@ -35,66 +34,35 @@ public:
                 if (i_tab) {
                     cur_line.erase(cur_line.begin(), cur_line.begin() + i_tab);
                 }
-                if (cur_line == "parameters[") {
-                    mode = PARAMS;
-                    continue;
-                } else if (cur_line == "model[") {
-                    mode = MODEL;
-                    is_model_mode = true;
-                    continue;
-                } else if (cur_line == "position[") {
+                if (cur_line == "position") {
                     mode = POS;
                     continue;
-                } else if (cur_line == "velocity[") {
+                } else if (cur_line == "velocity") {
                     mode = VEL;
                     continue;
-                } else if (cur_line == "]") {
-                    mode = NOMODE;
-                    continue;
                 }
-                if (mode == PARAMS) {
-                    std::regex rgx("^\\s*(\\w+)\\s*:\\s*(-?\\d+(\\.?\\d*([eE]?[+-]?\\d+)?)?)"
-                                   "\\s*(//.*)?$");
-                    std::smatch matches;
-                    if (std::regex_search(cur_line, matches, rgx)) {
-                        if (matches.size() > 2) {
-                            model->get_config()[matches[1]] = static_cast<T>(stod(matches[2].str()));
-                            continue;
-                        } else {
-                            std::string msg = sibernetic::make_msg(
-                                    "Problem with parsing parameters:", matches[0].str(),
-                                    "Please check parameters.");
-                            throw sibernetic::parser_error(msg);
-                        }
-                    } else {
-                        throw sibernetic::parser_error(
-                                "Please check parameters section there are no parametrs.");
+                switch (mode) {
+                    case POS: {
+                        sibernetic::model::particle<T> p;
+                        p.pos = *get_vector(cur_line);
+                        p.mass = model->get_config()["mass"];
+                        p.viscosity = model->get_config()["mu"];
+                        p.density = 1000.f;
+                        p.type = static_cast<int>(p.pos[3]);
+                        model->push_back(p);
+                        break;
                     }
-                }
-                if (is_model_mode) {
-                    switch (mode) {
-                        case POS: {
-                            sibernetic::model::particle<T> p;
-                            p.pos = *get_vector(cur_line);
-                            p.mass = model->get_config()["mass"];
-                            p.viscosity = model->get_config()["mu"];
-                            p.density = 1000.f;
-                            p.type = static_cast<int>(p.pos[3]);
-                            model->push_back(p);
-                            break;
-                        }
-                        case VEL: {
-                            if (index >= model->size())
-                                throw sibernetic::parser_error(
-                                        "Config file problem. Velocities more than partiles is.");
-                            model->get_particle(index).vel = *get_vector(cur_line);
-                            model->get_particle(index).particle_id = index;
-                            ++index;
-                            break;
-                        }
-                        default: {
-                            break;
-                        }
+                    case VEL: {
+                        if (index >= model->size())
+                            throw sibernetic::parser_error(
+                                    "Config file problem. Velocities more than partiles is.");
+                        model->get_particle(index).vel = *get_vector(cur_line);
+                        model->get_particle(index).particle_id = index;
+                        ++index;
+                        break;
+                    }
+                    default: {
+                        break;
                     }
                 }
             }
