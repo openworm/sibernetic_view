@@ -1,4 +1,4 @@
-CC = g++ -std=c++11 -Wall -pedantic -pthread
+CC = g++ -std=c++11 -Wall -pedantic
 TARGET:=sview
 
 LIBS := -lGL -lGL -lglut
@@ -30,7 +30,7 @@ $(BINARY_DIR)/%.o: $(SRC_DIR)/%.$(SRC_EXT)
 	@mkdir -p $(BINARY_DIR)/utils
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	$(CXXFLAGS) $(OCL_INC) -I$(INC_DIR) -c -o "$@" "$<"
+	$(CXXFLAGS) -c -o "$@" "$<"
 	@echo 'Finished building: $<'
 
 clean:
