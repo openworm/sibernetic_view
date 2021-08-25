@@ -10,16 +10,20 @@
 #include <iostream>
 #include <regex>
 
+#include "particle.hpp"
+#include "model.hpp"
+
 template<class T>
 class custom_reader{
     enum LOADMODE {
         NOMODE = -1, PARAMS, MODEL, POS, VEL
     };
 public:
-    void serialize(const std::string &file_name, sibernetic::model::particle_model <T> *model) {
+    void serialize(const std::string &file_name, particle_model<T> *model) {
         std::ifstream file(file_name.c_str(), std::ios_base::binary);
         LOADMODE mode = NOMODE;
         int index = 0;
+        int param_line_cnt = 0;
         if (file.is_open()) {
             while (file.good()) {
                 std::string cur_line;
@@ -34,6 +38,10 @@ public:
                 if (i_tab) {
                     cur_line.erase(cur_line.begin(), cur_line.begin() + i_tab);
                 }
+                if (cur_line == "bbox") {
+                    mode = PARAMS;
+                    continue;
+                }
                 if (cur_line == "position") {
                     mode = POS;
                     continue;
@@ -42,21 +50,39 @@ public:
                     continue;
                 }
                 switch (mode) {
+                    case PARAMS: {
+                    // Super Dumb
+                        switch(param_line_cnt) {
+                            case 0:
+                                model->x_max = static_cast<T>(stod(cur_line));
+                                break;
+                            case 1:
+                                model->x_min = static_cast<T>(stod(cur_line));
+                                break;
+                            case 2:
+                                model->y_min = static_cast<T>(stod(cur_line));
+                                break;
+                            case 3:
+                                model->y_max = static_cast<T>(stod(cur_line));
+                                break;
+                            case 4:
+                                model->z_min = static_cast<T>(stod(cur_line));
+                                break;
+                            case 5:
+                                model->z_max = static_cast<T>(stod(cur_line));
+                                break;
+                        }
+                        ++param_line_cnt;
+                        continue;
+                    }
                     case POS: {
-                        sibernetic::model::particle<T> p;
-                        p.pos = *get_vector(cur_line);
-                        p.mass = model->get_config()["mass"];
-                        p.viscosity = model->get_config()["mu"];
-                        p.density = 1000.f;
-                        p.type = static_cast<int>(p.pos[3]);
+                        particle<T> p;
+                        p.position = *get_vector(cur_line);
                         model->push_back(p);
                         break;
                     }
                     case VEL: {
-                        if (index >= model->size())
-                            throw sibernetic::parser_error(
-                                    "Config file problem. Velocities more than partiles is.");
-                        model->get_particle(index).vel = *get_vector(cur_line);
+                        model->get_particle(index).velocity = *get_vector(cur_line);
                         model->get_particle(index).particle_id = index;
                         ++index;
                         break;
@@ -67,8 +93,7 @@ public:
                 }
             }
         } else {
-            throw sibernetic::parser_error(
-                    "Check your file name or path there is no file with name " + file_name);
+            throw "Check your file name or path there is no file with name " + file_name;
         }
         file.close();
     }

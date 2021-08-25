@@ -1,12 +1,15 @@
 #ifndef PARTICLE_HPP
 #define PARTICLE_HPP
 
-#include <vector>
+#include <array>
 
-struct particle
+#define ARRAY_DIM 4
+
+template<class T=float>struct particle
 {
-    std::vector<float> postion;
-    std::vector<float> velocity;
+    std::array<T, ARRAY_DIM> position;
+    std::array<T, ARRAY_DIM> velocity;
+    int particle_id;
 };
 
 
