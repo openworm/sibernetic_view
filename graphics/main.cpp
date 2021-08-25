@@ -3,6 +3,7 @@
 //
 
 #include <memory>
+#include <iostream>
 
 #include "graph.h"
 #include "reader.hpp"
@@ -15,6 +16,6 @@ int main(int argc, char** argw){
 	auto model = new particle_model<float>();
 	std::string file_name = "./data/1.txt";
 	r->serialize(file_name, model);
+	std::cout << model->size() << std::endl;
 	graph::run(argc, argw);
-	
 }

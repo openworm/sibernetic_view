@@ -20,6 +20,9 @@ template<class T = float> struct particle_model {
     particle<T>& get_particle(int index) {
         return container.at(index);
     }
+    size_t size() {
+        return container.size();
+    }
 };
 
 #endif
