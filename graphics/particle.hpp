@@ -9,6 +9,7 @@ template<class T=float>struct particle
 {
     std::array<T, ARRAY_DIM> position;
     std::array<T, ARRAY_DIM> velocity;
+    int type;
     int particle_id;
 };
 

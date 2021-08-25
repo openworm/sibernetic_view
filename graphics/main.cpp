@@ -17,5 +17,6 @@ int main(int argc, char** argw){
 	std::string file_name = "./data/1.txt";
 	r->serialize(file_name, model);
 	std::cout << model->size() << std::endl;
+    graph::model = model;
 	graph::run(argc, argw);
 }

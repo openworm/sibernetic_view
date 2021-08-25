@@ -23,6 +23,9 @@ template<class T = float> struct particle_model {
     size_t size() {
         return container.size();
     }
+    std::vector<particle<T>>& get_particles() {
+        return container;
+    }
 };
 
 #endif

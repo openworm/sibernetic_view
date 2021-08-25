@@ -78,6 +78,7 @@ public:
                     case POS: {
                         particle<T> p;
                         p.position = *get_vector(cur_line);
+                        p.type = static_cast<int>(p.position[3]);
                         model->push_back(p);
                         break;
                     }

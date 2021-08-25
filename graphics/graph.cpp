@@ -10,7 +10,6 @@
 #include "VectorMath.h"
 
 using sibernetic::graphics::graph;
-using sibernetic::graphics::g_config;
 
 float simulationScale = 0.5f;
 inline void beginWinCoords() {
@@ -69,14 +68,14 @@ void graph::draw_scene(){
 		}
 		++order;
 	}
-	vbox[0] = Vector3D(config->xmin, config->ymin, config->zmin);
-	vbox[1] = Vector3D(config->xmax, config->ymin, config->zmin);
-	vbox[2] = Vector3D(config->xmax, config->ymax, config->zmin);
-	vbox[3] = Vector3D(config->xmin, config->ymax, config->zmin);
-	vbox[4] = Vector3D(config->xmin, config->ymin, config->zmax);
-	vbox[5] = Vector3D(config->xmax, config->ymin, config->zmax);
-	vbox[6] = Vector3D(config->xmax, config->ymax, config->zmax);
-	vbox[7] = Vector3D(config->xmin, config->ymax, config->zmax);
+	vbox[0] = Vector3D(model->x_min, model->y_min, model->z_min);
+	vbox[1] = Vector3D(model->x_max, model->y_min, model->z_min);
+	vbox[2] = Vector3D(model->x_max, model->y_max, model->z_min);
+	vbox[3] = Vector3D(model->x_min, model->y_max, model->z_min);
+	vbox[4] = Vector3D(model->x_min, model->y_min, model->z_max);
+	vbox[5] = Vector3D(model->x_max, model->y_min, model->z_max);
+	vbox[6] = Vector3D(model->x_max, model->y_max, model->z_max);
+	vbox[7] = Vector3D(model->x_min, model->y_max, model->z_max);
 
 	// Display user interface if enabled
 //	bool displayInfos = true;
@@ -100,27 +99,27 @@ void graph::draw_scene(){
 	glVertex3d(vcenter.x, vcenter.y, vcenter.z);
 	glVertex3d(vcenter.x, vcenter.y, vcenter.z + sc);
 	sc /= 10;
-	vcenter = Vector3D(-(config->xmin + config->xmax) / 2,
-	                   -(config->ymin + config->ymax) / 2,
-	                   -(config->zmin + config->zmax) / 2);
+	vcenter = Vector3D(-(model->x_min + model->x_max) / 2,
+	                   -(model->y_min + model->y_max) / 2,
+	                   -(model->z_min + model->z_max) / 2);
 	vcenter *= sc;
 	Vector3D v1, v2, v3, v4, v5, v6, v7, v8;
-	v1 = Vector3D(-config->xmax / 2, -config->ymax / 2,
-	              -config->zmax / 2) * sc;
-	v2 = Vector3D(config->xmax / 2, -config->ymax / 2,
-	              -config->zmax / 2) * sc;
-	v3 = Vector3D(config->xmax / 2, config->ymax / 2,
-	              -config->zmax / 2) * sc;
-	v4 = Vector3D(-config->xmax / 2, config->ymax / 2,
-	              -config->zmax / 2) * sc;
-	v5 = Vector3D(-config->xmax / 2, -config->ymax / 2,
-	              config->zmax / 2) * sc;
-	v6 = Vector3D(config->xmax / 2, -config->ymax / 2,
-	              config->zmax / 2) * sc;
-	v7 = Vector3D(config->xmax / 2, config->ymax / 2,
-	              config->zmax / 2) * sc;
-	v8 = Vector3D(-config->xmax / 2, config->ymax / 2,
-	              config->zmax / 2) * sc;
+	v1 = Vector3D(-model->x_max / 2, -model->y_max / 2,
+	              -model->z_max / 2) * sc;
+	v2 = Vector3D(model->x_max / 2, -model->y_max / 2,
+	              -model->z_max / 2) * sc;
+	v3 = Vector3D(model->x_max / 2, model->y_max / 2,
+	              -model->z_max / 2) * sc;
+	v4 = Vector3D(-model->x_max / 2, model->y_max / 2,
+	              -model->z_max / 2) * sc;
+	v5 = Vector3D(-model->x_max / 2, -model->y_max / 2,
+	              model->z_max / 2) * sc;
+	v6 = Vector3D(model->x_max / 2, -model->y_max / 2,
+	              model->z_max / 2) * sc;
+	v7 = Vector3D(model->x_max / 2, model->y_max / 2,
+	              model->z_max / 2) * sc;
+	v8 = Vector3D(-model->x_max / 2, model->y_max / 2,
+	              model->z_max / 2) * sc;
 	glColor3ub(255, 255, 255); // yellow
 	glVertex3d(v1.x, v1.y, v1.z);
 	glVertex3d(v2.x, v2.y, v2.z);
@@ -164,8 +163,8 @@ void graph::draw_scene(){
 	glBegin(GL_LINES);
 	glColor3ub(0, 0, 0); // black
 
-	Vector3D v_s = Vector3D(-config->xmax / 2 + s_v, config->ymax / 2,
-	                        config->zmax / 2) * sc;
+	Vector3D v_s = Vector3D(-model->x_max / 2 + s_v, model->y_max / 2,
+	                        model->z_max / 2) * sc;
 	glVertex3d(v_s.x, v_s.y, v_s.z);
 	glVertex3d(v_s.x, v_s.y - 0.5f * sc, v_s.z);
 	glLineWidth((GLfloat)10.0);
@@ -184,9 +183,9 @@ void graph::draw_scene(){
 	glPrint3D((float)v_s.x, (float)v_s.y - 2.f * sc, (float)v_s.z, s.c_str(),
 	          m_font);
 	ss.str("");
-	while (v_s.x < config->xmax / 2 * sc) {
+	while (v_s.x < model->x_max / 2 * sc) {
 		v_s.x += s_v * sc;
-		if (v_s.x < config->xmax / 2 * sc) {
+		if (v_s.x < model->x_max / 2 * sc) {
 			glBegin(GL_LINES);
 			glVertex3d(v_s.x, v_s.y, v_s.z);
 			glVertex3d(v_s.x, v_s.y - 0.5f * sc, v_s.z);
@@ -205,11 +204,83 @@ void graph::display(){
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	draw_scene();
-	glPointSize(1.3f * sqrt(sc / 0.025f));
-//	glBegin(GL_POINTS);
+	draw_model();
 //	float dc, rho;
 //	glLineWidth((GLfloat)1.0);
 	glutSwapBuffers();
+}
+
+void graph::draw_partition() {
+}
+
+void graph::draw_model() {
+	glPointSize(1.3f * sqrt(sc / 0.025f));
+	for(auto p : model->get_particles()){
+		int i = 0;
+		glColor4f(1.0, 1.0, 0.0, 1.0);
+		// for(auto partition: model->get_partition()){
+		// 	if(p.cell_id >= partition.start_cell_id && p.cell_id <= partition.end_cell_id) {
+		// 		if(i == 0) {
+		// 			if(model->get_partition().size() > 1) {
+		// 				if (p.cell_id >= model->get_partition()[1].start_ghost_cell_id) {
+		// 					glColor4f(1.0, 1.0, 0.0, 1.0);
+		// 				} else {
+		// 					glColor4f(1.0, 0.0, 0.0, 1.0);
+		// 				}
+		// 			} else {
+		// 				glColor4f(1.0, 1.0, 0.0, 1.0);
+		// 			}
+		// 		}
+		// 		if(i == 1){
+		// 			if(p.cell_id <= model->get_partition()[0].end_ghost_cell_id){
+		// 				glColor4f(0.0, 1.0, 1.0, 1.0);
+		// 			}else if(p.cell_id >= model->get_partition()[2].start_ghost_cell_id){
+		// 				glColor4f(1.0, 1.0, 1.0, 1.0);
+		// 			}else{
+		// 				glColor4f(0.0, 1.0, 0.0, 1.0);
+		// 			}
+		// 		}
+
+		// 		if(i == 2) {
+		// 			if(p.cell_id<= model->get_partition()[1].end_ghost_cell_id){
+		// 				glColor4f(0.0, 0.0, 0.0, 1.0);
+		// 			}else{
+		// 				glColor4f(0.0, 0.0, 1.0, 1.0);
+		// 			}
+		// 		}
+		// 		break;
+		// 	}
+		// 	++i;
+		// }
+		if (p.type != 3) {
+
+			glBegin(GL_POINTS);
+			//glPointSize(1.3f * static_cast<float>(sqrt(sc / 0.025)));
+			glPointSize(2.f);
+			//glColor4f(0, 0, 0, 1.0f); // color of elastic particles
+			glVertex3f((p.position[0] - model->x_max / 2) * sc,
+					   (p.position[1] - model->y_max / 2) * sc,
+			           (p.position[2] - model->z_max / 2) * sc);
+			glEnd();
+		} else if(p.type == 3) {
+//            glBegin(GL_POINTS);
+//            //glPointSize(1.3f * static_cast<float>(sqrt(sc / 0.025)));
+//            glPointSize(4.f);
+//            //glColor4f(0, 0, 0, 1.0f); // color of elastic particles
+//            glVertex3f((p.pos[0] - model->x_max / 2) * sc,
+//                       (p.pos[1] - model->y_max / 2) * sc,
+//                       (p.pos[2] - model->z_max / 2) * sc);
+//            glEnd();
+//			glBegin(GL_LINES);
+//			glVertex3f((p.pos[0] - model->x_max / 2) * sc,
+//			           (p.pos[1] - model->y_max / 2) * sc,
+//			           (p.pos[2] - model->z_max / 2) * sc);
+//			glVertex3f((p.pos[0] + p.vel[0] - model->x_max / 2) * sc,
+//			           (p.pos[1] + p.vel[1] - model->y_max / 2) * sc,
+//			           (p.pos[2] + p.vel[2] - model->z_max / 2) * sc);
+//			glEnd();
+		}
+	}
 }
 
 void graph::respond_mouse_callback(int button, int state, int x, int y) {
@@ -272,14 +343,14 @@ void graph::mouse_motion_callback(int x, int y) {
 void graph::key_pressed_callback(unsigned char key, int x, int y) {
 	switch (key) {
 		case '1':
-			//config->setConfigFileName("demo1");
+			//model->setmodelFileName("demo1");
 			//helper->refreshTime();
 //			fluid_simulation->reset();
 //			sPause = false;
 			break;
 		case '2':
-			// owHelper::configFileName = "demo2";
-			//config->setConfigFileName("demo2");
+			// owHelper::modelFileName = "demo2";
+			//model->setmodelFileName("demo2");
 			//helper->refreshTime();
 			//fluid_simulation->reset();
 //			sPause = false;
@@ -381,8 +452,7 @@ int graph::button_state = 0;
 float graph::sc = 0.025f; // 0.0145;//0.045;//0.07
 double graph::total_time = 0;
 int graph::frames_counter = 0;
-
-g_config * graph::config = new g_config({0.0,0.0,0.0, 100.0, 100.0, 100.0});
+particle_model<float>* graph::model = nullptr;
 
 void graph::run(int argc, char **argv){
 	glutInit(&argc, argv);

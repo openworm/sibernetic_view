@@ -2,14 +2,12 @@
 // Created by serg on 07.04.19.
 //
 
-#ifndef SIBERNETIC_GRAPH_H
-#define SIBERNETIC_GRAPH_H
+#ifndef GRAPH_H
+#define GRAPH_H
 
 #if defined(_WIN32) || defined (_WIN64)
-#include <GL/glew.h>
+	#include <GL/glew.h>
 	#include <GL/wglew.h>
-#else
-	#include <cstring>
 #endif
 
 #if defined(__APPLE__) || defined(MACOSX)
@@ -18,23 +16,24 @@
 	#include <GL/freeglut.h>
 #endif
 
+#include <cstring>
+#include <memory>
+
+#include "model.hpp"
+
 #define TIMER_INTERVAL 30  			//this is the interval between calls to timer func (in milliseconds)
 #define ROTATION_STEP_ANGLE 1 //this is the step angle that the mesh will rotate every SOME_INTERVAL milliseconds
 
 namespace sibernetic {
 	namespace graphics {
-		struct g_config{
-			float xmin;
-			float ymin;
-			float zmin;
-			float xmax;
-			float ymax;
-			float zmax;
+		enum UI_MODE{
+			OGL,
+			CLI
 		};
 		class graph {
 		public:
 			static void run(int, char **);
-			static g_config * config;
+			static particle_model<float> *model;
 		private:
 			static int old_x;
 			static int old_y; // Used for mouse event
@@ -46,10 +45,10 @@ namespace sibernetic {
 			static float sc; // 0.0145;//0.045;//0.07
 			static double total_time;
 			static int frames_counter;
-			static void * particles;
 
-			static void draw_scene();
+			static void draw_partition();
 			static void draw_model();
+			static void draw_scene();
 			static void init();
 			static void resize_callback(GLsizei width, GLsizei height);
 			static void display();
