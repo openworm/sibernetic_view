@@ -45,10 +45,7 @@ public:
                 if (cur_line == "position") {
                     mode = POS;
                     continue;
-                } else if (cur_line == "velocity") {
-                    mode = VEL;
-                    continue;
-                }
+                } 
                 switch (mode) {
                     case PARAMS: {
                     // Super Dumb
@@ -77,14 +74,14 @@ public:
                     }
                     case POS: {
                         particle<T> p;
-                        p.position = *get_vector(cur_line);
+                        auto data = *get_vector(cur_line)
+                        auto pos = std::array<T, 4>{data[0],data[1],data[2],data[3]}
+                        auto vel = std::array<T, 4>{data[4],data[5],data[6],data[7]}
+                        p.velocity = vel;
+                        p.position = pos;
                         p.type = static_cast<int>(p.position[3]);
+                        p.particle_id = index;
                         model->push_back(p);
-                        break;
-                    }
-                    case VEL: {
-                        model->get_particle(index).velocity = *get_vector(cur_line);
-                        model->get_particle(index).particle_id = index;
                         ++index;
                         break;
                     }
@@ -100,10 +97,10 @@ public:
     }
 
 private:
-    std::shared_ptr <std::array<T, 4>> get_vector(const std::string &line) {
-        std::shared_ptr <std::array<T, 4>> v(new std::array<T, 4>());
+    std::shared_ptr <std::array<T, 8>> get_vector(const std::string &line) {
+        std::shared_ptr <std::array<T, 8>> v(new std::array<T, 8>());
         std::stringstream ss(line);
-        ss >> (*v)[0] >> (*v)[1] >> (*v)[2] >> (*v)[3]; // TODO check here!!!
+        ss >> (*v)[0] >> (*v)[1] >> (*v)[2] >> (*v)[3] >> (*v)[4] >> (*v)[5] >> (*v)[6] >> (*v)[7]; // TODO check here!!!
         return v;
     }
 };

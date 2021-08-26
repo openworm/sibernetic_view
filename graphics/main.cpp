@@ -14,7 +14,7 @@ using sibernetic::graphics::graph;
 int main(int argc, char** argw){
 	auto r = std::make_shared<custom_reader<float>>();
 	auto model = new particle_model<float>();
-	std::string file_name = "./data/1.txt";
+	std::string file_name = "./data/8.txt";
 	r->serialize(file_name, model);
 	std::cout << model->size() << std::endl;
 	std::cout << "x_min " << model->x_min << std::endl;
