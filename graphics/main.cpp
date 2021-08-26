@@ -17,6 +17,12 @@ int main(int argc, char** argw){
 	std::string file_name = "./data/1.txt";
 	r->serialize(file_name, model);
 	std::cout << model->size() << std::endl;
+	std::cout << "x_min " << model->x_min << std::endl;
+	std::cout << "x_max " << model->x_max << std::endl;
+	std::cout << "y_min " << model->y_min << std::endl;
+	std::cout << "y_max " << model->y_max << std::endl;
+	std::cout << "z_min " << model->z_min << std::endl;
+	std::cout << "z_max " << model->z_max << std::endl;
     graph::model = model;
 	graph::run(argc, argw);
 }

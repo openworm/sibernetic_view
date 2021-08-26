@@ -60,16 +60,16 @@ public:
                                 model->x_min = static_cast<T>(stod(cur_line));
                                 break;
                             case 2:
-                                model->y_min = static_cast<T>(stod(cur_line));
-                                break;
-                            case 3:
                                 model->y_max = static_cast<T>(stod(cur_line));
                                 break;
+                            case 3:
+                                model->y_min = static_cast<T>(stod(cur_line));
+                                break;
                             case 4:
-                                model->z_min = static_cast<T>(stod(cur_line));
+                                model->z_max = static_cast<T>(stod(cur_line));
                                 break;
                             case 5:
-                                model->z_max = static_cast<T>(stod(cur_line));
+                                model->z_min = static_cast<T>(stod(cur_line));
                                 break;
                         }
                         ++param_line_cnt;
