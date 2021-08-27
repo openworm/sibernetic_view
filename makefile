@@ -1,5 +1,6 @@
 CC = g++ -std=c++11 -Wall -pedantic
 TARGET:=sview
+RM = rm -rf
 
 LIBS := -lGL -lGL -lglut
 SRC_DIR := graphics

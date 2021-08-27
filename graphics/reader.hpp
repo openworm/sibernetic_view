@@ -74,9 +74,9 @@ public:
                     }
                     case POS: {
                         particle<T> p;
-                        auto data = *get_vector(cur_line)
-                        auto pos = std::array<T, 4>{data[0],data[1],data[2],data[3]}
-                        auto vel = std::array<T, 4>{data[4],data[5],data[6],data[7]}
+                        auto data = *get_vector(cur_line);
+                        auto pos = std::array<T, 4>{data[0],data[1],data[2],data[3]};
+                        auto vel = std::array<T, 4>{data[4],data[5],data[6],data[7]};
                         p.velocity = vel;
                         p.position = pos;
                         p.type = static_cast<int>(p.position[3]);
