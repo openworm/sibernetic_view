@@ -12,9 +12,13 @@
 using sibernetic::graphics::graph;
 
 int main(int argc, char** argw){
+	if(argc == 1) {
+		std::cout << "must have input file name" << std::endl;
+		return -1;
+	}
+	auto file_name = std::string(argw[1]);
 	auto r = std::make_shared<custom_reader<float>>();
 	auto model = new particle_model<float>();
-	std::string file_name = "./data/debug.out";
 	r->serialize(file_name, model);
 	std::cout << model->size() << std::endl;
 	std::cout << "x_min " << model->x_min << std::endl;

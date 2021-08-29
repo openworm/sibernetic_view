@@ -258,9 +258,16 @@ void graph::draw_model() {
 			//glPointSize(1.3f * static_cast<float>(sqrt(sc / 0.025)));
 			glPointSize(2.f);
 			//glColor4f(0, 0, 0, 1.0f); // color of elastic particles
-			glVertex3f((p.position[0] - model->x_max / 2) * sc,
+			if(
+				(p.position[0] >= model->x_max || p.position[0] <= model->x_min) || 
+				(p.position[1] >= model->y_max || p.position[1] <= model->y_min) ||
+				(p.position[2] >= model->z_max || p.position[2] <= model->z_min)
+			) {
+				glVertex3f((p.position[0] - model->x_max / 2) * sc,
 					   (p.position[1] - model->y_max / 2) * sc,
 			           (p.position[2] - model->z_max / 2) * sc);
+			}
+			
 			glEnd();
 		} else if(p.type == 3) {
 //            glBegin(GL_POINTS);
