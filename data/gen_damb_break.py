@@ -60,57 +60,67 @@ def calc_delta(params):
 
 def gen_param_map(out, h, x_dim, y_dim, z_dim, mass=MASS):
     out["parameters"] = []
-    #out["parameters"]["particles"] = 30
-    #out["parameters"]["h"] = h
-    # out["parameters"]["x_max"] = h * x_dim
-    # out["parameters"]["x_min"] = 0
-    # out["parameters"]["y_max"] = h * y_dim
-    # out["parameters"]["y_min"] = 0
-    # out["parameters"]["z_max"] = h * z_dim
-    # out["parameters"]["z_min"] = 0
     out["parameters"] += [h * x_dim, 0, h * y_dim, 0, h * z_dim, 0]
+
+def gen_param_map_sibernetic(out, h, x_dim, y_dim, z_dim, mass=MASS):
+    out["parameters"] = {}
+    out["parameters"]["particles"] = 30
+    out["parameters"]["h"] = h
+    out["parameters"]["x_max"] = h * x_dim
+    out["parameters"]["x_min"] = 0
+    out["parameters"]["y_max"] = h * y_dim
+    out["parameters"]["y_min"] = 0
+    out["parameters"]["z_max"] = h * z_dim
+    out["parameters"]["z_min"] = 0
+    out["parameters"]["mass"] = MASS
+    out["parameters"]["rho0"] = 1000.0
+    out["parameters"]["time_step"] = 4.0 * 5.0e-06
+    out["parameters"]["simulation_scale"] = 0.0037 * math.pow(mass,1.0/3.0)/math.pow(0.00025, 1.0/3.0)
+
+    out["parameters"]["beta"] = (out["parameters"]["time_step"] ** 2) * (out["parameters"]["mass"] **2) * 2 /(out["parameters"]["rho0"] ** 2);
+    out["parameters"]["wpoly6_coefficient"] = 315.0 / ( 64.0 * math.pi * math.pow(h * out["parameters"]["simulation_scale"], 9.0 ) )
+    out["parameters"]["grad_wspiky_coefficient"] = -45.0 / ( math.pi * math.pow( (h * out["parameters"]["simulation_scale"]), 6.0 ) )
+    out["parameters"]["divgrad_wviscosity_coefficient"] = -out["parameters"]["grad_wspiky_coefficient"]
+    out["parameters"]["mass_mult_wpoly6_coefficient"] = out["parameters"]["mass"] * out["parameters"]["wpoly6_coefficient"]
+    out["parameters"]["mass_mult_grad_wspiky_coefficient"] = out["parameters"]["mass"] * out["parameters"]["grad_wspiky_coefficient"]
+    out["parameters"]["mass_mult_divgrad_viscosity_coefficient"] = out["parameters"]["mass"]  * out["parameters"]["divgrad_wviscosity_coefficient"]
+    out["parameters"]["surf_tens_coeff"] = out["parameters"]["mass_mult_wpoly6_coefficient"] * out["parameters"]["simulation_scale"]
+    out["parameters"]["delta"] = calc_delta(out["parameters"])
+
+    out["parameters"]["gravity_x"] =  0.0
+    out["parameters"]["gravity_y"] =  -9.8
+    out["parameters"]["gravity_z"] = 0.0
+    out["parameters"]["mu"] = 0.1 * 0.00004
+
     
-    # out["parameters"]["mass"] = MASS
-    # out["parameters"]["rho0"] = 1000.0
-    # out["parameters"]["time_step"] = 4.0 * 5.0e-06
-    # out["parameters"]["simulation_scale"] = 0.0037 * math.pow(mass,1.0/3.0)/math.pow(0.00025, 1.0/3.0)
-
-    # out["parameters"]["beta"] = (out["parameters"]["time_step"] ** 2) * (out["parameters"]["mass"] **2) * 2 /(out["parameters"]["rho0"] ** 2);
-    # out["parameters"]["wpoly6_coefficient"] = 315.0 / ( 64.0 * math.pi * math.pow(h * out["parameters"]["simulation_scale"], 9.0 ) )
-    # out["parameters"]["grad_wspiky_coefficient"] = -45.0 / ( math.pi * math.pow( (h * out["parameters"]["simulation_scale"]), 6.0 ) )
-    # out["parameters"]["divgrad_wviscosity_coefficient"] = -out["parameters"]["grad_wspiky_coefficient"]
-    # out["parameters"]["mass_mult_wpoly6_coefficient"] = out["parameters"]["mass"] * out["parameters"]["wpoly6_coefficient"]
-    # out["parameters"]["mass_mult_grad_wspiky_coefficient"] = out["parameters"]["mass"] * out["parameters"]["grad_wspiky_coefficient"]
-    # out["parameters"]["mass_mult_divgrad_viscosity_coefficient"] = out["parameters"]["mass"]  * out["parameters"]["divgrad_wviscosity_coefficient"]
-    # out["parameters"]["surf_tens_coeff"] = out["parameters"]["mass_mult_wpoly6_coefficient"] * out["parameters"]["simulation_scale"]
-    # out["parameters"]["delta"] = calc_delta(out["parameters"])
-
-    # out["parameters"]["gravity_x"] =  0.0
-    # out["parameters"]["gravity_y"] =  -9.8
-    # out["parameters"]["gravity_z"] = 0.0
-    # out["parameters"]["mu"] = 0.1 * 0.00004
-
 def gen_model(x_dim, y_dim, z_dim, file_name="tmp") -> int:
     particle_count = 0
     h = 3.34
     r0 = h * 0.5
 
     out = {}
+    out1 = {}
     gen_param_map(out, h, x_dim, y_dim, z_dim)
-    out["model"] = []
-
+    gen_param_map_sibernetic(out1, h, x_dim, y_dim, z_dim)
+    out['model'] = []
+    #draw_bounds(out, x_dim, y_dim, z_dim, h, r0)
     #draw_bounds(out, x_dim, y_dim, z_dim, h, r0)
     draw_bounds(out, x_dim, y_dim, z_dim, h, r0)
-    for x in gen(3 * r0, h * x_dim * 5/7 - 3 * r0, r0):
-        for y in gen(3 * r0, h * y_dim - 3 * r0, r0):
-            for z in gen(3 * r0, h * z_dim - 3 * r0, r0):
-                out["model"].append(make_particle(pos=[x, y, z, 1.0], type=ParticleType.LIQUID, mass=MASS))
+    for x in gen(4 * r0, h * x_dim * 5/7 - 4 * r0, r0):
+        for y in gen(4 * r0, h * y_dim - 4 * r0, r0):
+            for z in gen(4 * r0, h * z_dim - 4 * r0, r0):
+                out['model'].append(make_particle(pos=[x, y, z, 1.0], type=ParticleType.LIQUID, mass=MASS))
 
     # fp = open("model.json", 'w')
     # json.dump(out, fp)
+    #out["model"] = model
+    out1["model"] = out["model"]
     print(len(out['model']), "particles generated")
     # fp.close()
-    return old_gen(out)
+    #old_old_gen(out1)
+    old_gen(out)
+    
+
 
 def old_gen(model, file_name="model.txt") -> int:
     fp = open(file_name, 'w')
@@ -124,6 +134,33 @@ def old_gen(model, file_name="model.txt") -> int:
     fp.write(position_str)
     fp.close()
     return len(model['model'])
+
+def old_old_gen(model, file_name="9M.txt"):
+    fp = open(file_name, 'w')
+    fp.write("parameters[\n")
+    for p in model["parameters"]:
+        fp.write(f'{p}: {model["parameters"][p]}\n')
+    fp.write("]\n")
+    fp.write("model[\n")
+    fp.write("position[\n")
+    position_str = ""
+    velocity_str = ""
+    for p in model['model']:
+        position_str += f"{p['position'][0]}\t{p['position'][1]}\t{p['position'][2]}\t{p['type'] + 0.1}\n"
+        velocity_str += f"{p['velocity'][0]}\t{p['velocity'][1]}\t{p['velocity'][2]}\t{p['type'] + 0.1}\n"
+    fp.write(position_str)
+    fp.write("]\n")
+    fp.write("velocity[\n")
+    fp.write(velocity_str)
+    fp.write("]\n")
+    fp.write("connection[\n")
+    fp.write("]\n")
+    fp.write("membranes[\n")
+    fp.write("]\n")
+    fp.write("particleMemIndex[\n")
+    fp.write("]\n")
+    fp.write("]\n")
+    fp.close()
 
 def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
     nx = int( x_dim * h / r0 )  # Numbers of boundary particles on X-axis
@@ -312,7 +349,7 @@ def main():
     #gen_model(1, 1, 1)
     gen_model(8, 8, 8)
     #gen_model(128, 128, 128)
-    #print(f"Generated molde with {gen_model(192, 96, 96)} particles")
+    #gen_model(192, 96, 96)
     #gen_model(48, 24, 24)
     #gen_model(96, 96, 96)
 
