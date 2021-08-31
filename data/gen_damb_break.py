@@ -117,8 +117,8 @@ def gen_model(x_dim, y_dim, z_dim, file_name="tmp") -> int:
     out1["model"] = out["model"]
     print(len(out['model']), "particles generated")
     # fp.close()
-    #old_old_gen(out1)
-    old_gen(out)
+    old_old_gen(out1)
+    #old_gen(out)
     
 
 
@@ -260,7 +260,8 @@ def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
                 x = ix * r0 + r0 / 2.0
                 y = 0.0 * r0 + r0 / 2.0
                 z = iz * r0 + r0 / 2.0
-                vel_x = 0.0
+                #vel_x = 0.0
+                vel_x = ( 1.0 * ( float( ix == 0 ) - float( ix == nx - 1 ) ) ) / math.sqrt( 2.0 )
                 vel_y = 1.0 / math.sqrt(2.0)
                 vel_z = 1.0 * ( float( iz == 0 ) - float(iz == nz - 1 ) ) / math.sqrt(2.0)
                 particles['model'].append(
@@ -273,7 +274,8 @@ def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
                 x = ix * r0 + r0 / 2.0
                 y = ( ny - 1 ) * r0 + r0 / 2.0
                 z = iz * r0 + r0 / 2.0
-                vel_x = 0.0
+                #vel_x = 0.0
+                vel_x = ( 1.0 * ( float( ix == 0 ) - float( ix == nx - 1 ) ) ) / math.sqrt( 2.0 )
                 vel_y = -1.0 / math.sqrt(2.0)
                 vel_z = 1.0 * (float(iz == 0) - float(iz == nz - 1)) / math.sqrt(2.0)
 
@@ -313,7 +315,7 @@ def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
                     )
                 )
 
-    #3 - side walls OY-OZ and opposite
+    # #3 - side walls OY-OZ and opposite
     for iy in range(1, ny - 1):
         for iz in range(1,nz - 1):
             x = 0.0 * r0 + r0 / 2.0
@@ -347,9 +349,9 @@ def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
 
 def main():
     #gen_model(1, 1, 1)
-    gen_model(8, 8, 8)
+    #gen_model(8, 8, 8)
     #gen_model(128, 128, 128)
-    #gen_model(192, 96, 96)
+    gen_model(192, 96, 96)
     #gen_model(48, 24, 24)
     #gen_model(96, 96, 96)
 
