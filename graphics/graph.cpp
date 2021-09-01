@@ -213,9 +213,29 @@ void graph::display(){
 void graph::draw_partition() {
 }
 
+std::vector<particle<float>> *p_set = nullptr;
 void graph::draw_model() {
+	if(p_set == nullptr) {
+		p_set = new std::vector<particle<float>>();
+		for(auto p : model->get_particles()) {
+			if (p.type != 3) {
+			//glColor4f(0, 0, 0, 1.0f); // color of elastic particles
+			if(
+				//1
+				(p.position[0] >= model->x_max || p.position[0] <= model->x_min) || 
+				(p.position[1] >= model->y_max || p.position[1] <= model->y_min) ||
+				(p.position[2] >= model->z_max || p.position[2] <= model->z_min)
+			) {
+				p_set->push_back(p);
+			}
+			
+		} else if(p.type == 3) {
+           p_set->push_back(p);
+		}
+		}
+	}
 	glPointSize(1.3f * sqrt(sc / 0.025f));
-	for(auto p : model->get_particles()){
+	for(auto p : *p_set){//model->get_particles()){
 		int i = 0;
 		glColor4f(1.0, 1.0, 0.0, 1.0);
 		// for(auto partition: model->get_partition()){
@@ -259,10 +279,10 @@ void graph::draw_model() {
 			glPointSize(2.f);
 			//glColor4f(0, 0, 0, 1.0f); // color of elastic particles
 			if(
-				1
-				// (p.position[0] >= model->x_max || p.position[0] <= model->x_min) || 
-				// (p.position[1] >= model->y_max || p.position[1] <= model->y_min) ||
-				// (p.position[2] >= model->z_max || p.position[2] <= model->z_min)
+				//1
+				(p.position[0] >= model->x_max || p.position[0] <= model->x_min) || 
+				(p.position[1] >= model->y_max || p.position[1] <= model->y_min) ||
+				(p.position[2] >= model->z_max || p.position[2] <= model->z_min)
 			) {
 				glVertex3f((p.position[0] - model->x_max / 2) * sc,
 					   (p.position[1] - model->y_max / 2) * sc,
