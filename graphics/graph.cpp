@@ -12,6 +12,9 @@
 using sibernetic::graphics::graph;
 
 float simulationScale = 0.5f;
+bool showBoubdary = true;
+bool as_spehere = false;
+bool show_p_out_of_boundary = false;
 inline void beginWinCoords() {
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -214,29 +217,45 @@ void graph::draw_partition() {
 }
 
 std::vector<particle<float>> *p_set = nullptr;
+std::vector<particle<float>> *p_out_off_scene = nullptr;
+std::vector<particle<float>> *p_boundary = nullptr;
 void graph::draw_model() {
 	if(p_set == nullptr) {
 		p_set = new std::vector<particle<float>>();
+		p_out_off_scene = new std::vector<particle<float>>();
+		p_boundary = new std::vector<particle<float>>();
 		for(auto p : model->get_particles()) {
 			if (p.type != 3) {
 			//glColor4f(0, 0, 0, 1.0f); // color of elastic particles
-			if(
-				//1
-				(p.position[0] >= model->x_max || p.position[0] <= model->x_min) || 
-				(p.position[1] >= model->y_max || p.position[1] <= model->y_min) ||
-				(p.position[2] >= model->z_max || p.position[2] <= model->z_min)
-			) {
-				p_set->push_back(p);
+				if(
+					(p.position[0] >= model->x_max || p.position[0] <= model->x_min) || 
+					(p.position[1] >= model->y_max || p.position[1] <= model->y_min) ||
+					(p.position[2] >= model->z_max || p.position[2] <= model->z_min)
+				){
+					p_out_off_scene->push_back(p);
+				} else {
+					p_set->push_back(p);
+				}
+			} else if(p.type == 3) {
+				p_boundary->push_back(p);
 			}
-			
-		} else if(p.type == 3) {
-           p_set->push_back(p);
 		}
-		}
+		std::cout << "Out of box particles " << p_out_off_scene->size() << std::endl;
+		std::cout << "particles in box " << p_set->size() << std::endl;
+		std::cout << "boundary particles " << p_boundary->size() << std::endl;
+		std::cout << "Total numbers of particles " << model->size() << std::endl;
 	}
 	glPointSize(1.3f * sqrt(sc / 0.025f));
-	for(auto p : *p_set){//model->get_particles()){
-		int i = 0;
+	std::vector<particle<float>> *p_to_show;
+	if(show_p_out_of_boundary) {
+		p_to_show = p_out_off_scene;
+	}else if (showBoubdary) {
+		p_to_show = p_boundary;
+	} else {
+		p_to_show = p_set;
+	}
+	for(auto p : *p_to_show){//model->get_particles()){
+		//int i = 0;
 		glColor4f(1.0, 1.0, 0.0, 1.0);
 		// for(auto partition: model->get_partition()){
 		// 	if(p.cell_id >= partition.start_cell_id && p.cell_id <= partition.end_cell_id) {
@@ -274,23 +293,28 @@ void graph::draw_model() {
 		// }
 		if (p.type != 3) {
 
-			glBegin(GL_POINTS);
-			//glPointSize(1.3f * static_cast<float>(sqrt(sc / 0.025)));
-			glPointSize(2.f);
-			//glColor4f(0, 0, 0, 1.0f); // color of elastic particles
+
 			if(
-				//1
-				(p.position[0] >= model->x_max || p.position[0] <= model->x_min) || 
-				(p.position[1] >= model->y_max || p.position[1] <= model->y_min) ||
-				(p.position[2] >= model->z_max || p.position[2] <= model->z_min)
+				1
+				// (p.position[0] >= model->x_max || p.position[0] <= model->x_min) || 
+				// (p.position[1] >= model->y_max || p.position[1] <= model->y_min) ||
+				// (p.position[2] >= model->z_max || p.position[2] <= model->z_min)
 			) {
-				glVertex3f((p.position[0] - model->x_max / 2) * sc,
-					   (p.position[1] - model->y_max / 2) * sc,
-			           (p.position[2] - model->z_max / 2) * sc);
+				if(!as_spehere) {
+					glBegin(GL_POINTS);
+					glPointSize(1.f);
+						glVertex3f((p.position[0] - model->x_max / 2) * sc,
+						(p.position[1] - model->y_max / 2) * sc,
+						(p.position[2] - model->z_max / 2) * sc);
+					glEnd();
+				} else {
+					glPushMatrix();
+        			glTranslatef((p.position[0] - model->x_max / 2) * sc, (p.position[1] - model->y_max / 2) * sc, (p.position[2] - model->z_max / 2) * sc);
+					glutSolidSphere(0.05, 25, 25);
+					glPopMatrix();
+				}
 			}
-			
-			glEnd();
-		} else if(p.type == 3) {
+		} else if(p.type == 3 && showBoubdary) {
            glBegin(GL_POINTS);
            //glPointSize(1.3f * static_cast<float>(sqrt(sc / 0.025)));
            glPointSize(4.f);
@@ -395,6 +419,15 @@ void graph::key_pressed_callback(unsigned char key, int x, int y) {
 			break;
 		case 's':
 //			fluid_simulation->makeSnapshot();
+			break;
+		case 'b':
+			showBoubdary = !showBoubdary;
+			break;
+		case 'v':
+			as_spehere = !as_spehere;
+			break;
+		case 'o':
+			show_p_out_of_boundary = !show_p_out_of_boundary;
 			break;
 		case 'r': // reset simulation
 			//helper->refreshTime();

@@ -28,8 +28,10 @@ public:
             while (file.good()) {
                 std::string cur_line;
                 std::getline(file, cur_line);
-                cur_line.erase(std::remove(cur_line.begin(), cur_line.end(), '\r'),
-                               cur_line.end()); // crlf win fix
+                if(cur_line.empty()) {
+                    continue;
+                }
+                cur_line.erase(std::remove(cur_line.begin(), cur_line.end(), '\r'),cur_line.end()); // crlf win fix
                 auto i_space = cur_line.find_first_not_of(" ");
                 auto i_tab = cur_line.find_first_not_of("\t");
                 if (i_space) {
@@ -38,6 +40,7 @@ public:
                 if (i_tab) {
                     cur_line.erase(cur_line.begin(), cur_line.begin() + i_tab);
                 }
+                
                 if (cur_line == "bbox") {
                     mode = PARAMS;
                     continue;

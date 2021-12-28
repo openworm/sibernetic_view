@@ -100,8 +100,8 @@ def gen_model(x_dim, y_dim, z_dim, file_name="tmp") -> int:
 
     out = {}
     out1 = {}
-    gen_param_map(out, h, x_dim, y_dim, z_dim)
-    gen_param_map_sibernetic(out1, h, x_dim, y_dim, z_dim)
+    gen_param_map(out1, h, x_dim, y_dim, z_dim)
+    gen_param_map_sibernetic(out, h, x_dim, y_dim, z_dim)
     out['model'] = []
     #draw_bounds(out, x_dim, y_dim, z_dim, h, r0)
     #draw_bounds(out, x_dim, y_dim, z_dim, h, r0)
@@ -117,8 +117,8 @@ def gen_model(x_dim, y_dim, z_dim, file_name="tmp") -> int:
     out1["model"] = out["model"]
     print(len(out['model']), "particles generated")
     # fp.close()
-    old_old_gen(out1)
-    #old_gen(out)
+    #old_old_gen(out)
+    old_gen(out1)
     
 
 
@@ -349,9 +349,10 @@ def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
 
 def main():
     #gen_model(1, 1, 1)
-    #gen_model(8, 8, 8)
+    gen_model(8, 8, 8)
     #gen_model(128, 128, 128)
-    gen_model(192, 96, 96)
+    
+    #gen_model(192, 96, 96) # 9M
     #gen_model(48, 24, 24)
     #gen_model(96, 96, 96)
 
