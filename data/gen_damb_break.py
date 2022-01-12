@@ -114,11 +114,14 @@ def gen_model(x_dim, y_dim, z_dim, file_name="tmp") -> int:
     # fp = open("model.json", 'w')
     # json.dump(out, fp)
     #out["model"] = model
+    while len(out["model"]) % 8 != 0:
+        out["model"].pop()
+    print(len(out["model"]))
     out1["model"] = out["model"]
     print(len(out['model']), "particles generated")
     # fp.close()
     old_old_gen(out1)
-    #old_gen(out)
+    old_gen(out)
     
 
 
