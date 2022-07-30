@@ -9,16 +9,19 @@ class ParticleType(enum.Enum):
     LIQUID = 1
     BOUND = 3
 
+
 MASS = 20.00e-13
 
-def make_particle(pos, vel=None, type=ParticleType.LIQUID, mass = MASS):
-   particle_dict = {}
-   particle_dict["position"] = pos
-   particle_dict["type"] = type.value
-   particle_dict["velocity"] = vel or [0.0, 0.0, 0.0, 1.0]
-   particle_dict["mass"] = mass
-   particle_dict["density"] = 1000.0
-   return particle_dict
+
+def make_particle(pos, vel=None, type=ParticleType.LIQUID, mass=MASS):
+    particle_dict = {}
+    particle_dict["position"] = pos
+    particle_dict["type"] = type.value
+    particle_dict["velocity"] = vel or [0.0, 0.0, 0.0, 1.0]
+    particle_dict["mass"] = mass
+    particle_dict["density"] = 1000.0
+    return particle_dict
+
 
 def gen(start, end, step):
     ret = start
@@ -26,10 +29,14 @@ def gen(start, end, step):
         yield ret
         ret += step
 
+
 def calc_delta(params):
-    x = [1, 1, 0, -1, -1, -1, 0, 1, 1, 1,  0, -1, -1, -1, 0, 1, 1, 1, 0, -1, -1, -1, 0, 1, 2, -2, 0, 0,  0,  0,  0, 0]
-    y = [0, 1, 1, 1, 0, -1, -1, -1, 0, 1, 1, 1,  0, -1, -1, -1, 0, 1, 1, 1, 0, -1, -1, -1, 0, 0, 2, -2, 0, 0,  0,  0]
-    z = [0,  0,  0,  0,  0,  0,  0,  0,  1, 1, 1, 1, 1, 1,  1, 1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 2, -2, 1, -1]
+    x = [1, 1, 0, -1, -1, -1, 0, 1, 1, 1,  0, -1, -1, -1, 0, 1,
+         1, 1, 0, -1, -1, -1, 0, 1, 2, -2, 0, 0,  0,  0,  0, 0]
+    y = [0, 1, 1, 1, 0, -1, -1, -1, 0, 1, 1, 1,  0, -1, -1, -
+         1, 0, 1, 1, 1, 0, -1, -1, -1, 0, 0, 2, -2, 0, 0,  0,  0]
+    z = [0,  0,  0,  0,  0,  0,  0,  0,  1, 1, 1, 1, 1, 1,  1,
+         1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 2, -2, 1, -1]
     sum1_x = 0.0
     sum1_y = 0.0
     sum1_z = 0.0
@@ -47,7 +54,8 @@ def calc_delta(params):
         v_z = z[i] * 0.8 * particleRadius
         dist = math.sqrt(v_x * v_x + v_y * v_y + v_z * v_z)
         if dist <= params["h"] * params["simulation_scale"]:
-            h_r_2 = math.pow((params["h"] * params["simulation_scale"] - dist), 2)
+            h_r_2 = math.pow(
+                (params["h"] * params["simulation_scale"] - dist), 2)
             sum1_x += h_r_2 * v_x / dist
             sum1_y += h_r_2 * v_y / dist
             sum1_z += h_r_2 * v_z / dist
@@ -55,12 +63,15 @@ def calc_delta(params):
             sum2 += h_r_2 * h_r_2
 
     sum1 = sum1_x * sum1_x + sum1_y * sum1_y + sum1_z * sum1_z
-    result = 1.0 / (params["beta"] * params["grad_wspiky_coefficient"] * params["grad_wspiky_coefficient"] * (sum1 + sum2))
+    result = 1.0 / (params["beta"] * params["grad_wspiky_coefficient"]
+                    * params["grad_wspiky_coefficient"] * (sum1 + sum2))
     return result
+
 
 def gen_param_map(out, h, x_dim, y_dim, z_dim, mass=MASS):
     out["parameters"] = []
     out["parameters"] += [h * x_dim, 0, h * y_dim, 0, h * z_dim, 0]
+
 
 def gen_param_map_sibernetic(out, h, x_dim, y_dim, z_dim, mass=MASS):
     out["parameters"] = {}
@@ -75,24 +86,34 @@ def gen_param_map_sibernetic(out, h, x_dim, y_dim, z_dim, mass=MASS):
     out["parameters"]["mass"] = MASS
     out["parameters"]["rho0"] = 1000.0
     out["parameters"]["time_step"] = 4.0 * 5.0e-06
-    out["parameters"]["simulation_scale"] = 0.0037 * math.pow(mass,1.0/3.0)/math.pow(0.00025, 1.0/3.0)
+    out["parameters"]["simulation_scale"] = 0.0037 * \
+        math.pow(mass, 1.0/3.0)/math.pow(0.00025, 1.0/3.0)
 
-    out["parameters"]["beta"] = (out["parameters"]["time_step"] ** 2) * (out["parameters"]["mass"] **2) * 2 /(out["parameters"]["rho0"] ** 2);
-    out["parameters"]["wpoly6_coefficient"] = 315.0 / ( 64.0 * math.pi * math.pow(h * out["parameters"]["simulation_scale"], 9.0 ) )
-    out["parameters"]["grad_wspiky_coefficient"] = -45.0 / ( math.pi * math.pow( (h * out["parameters"]["simulation_scale"]), 6.0 ) )
-    out["parameters"]["divgrad_wviscosity_coefficient"] = -out["parameters"]["grad_wspiky_coefficient"]
-    out["parameters"]["mass_mult_wpoly6_coefficient"] = out["parameters"]["mass"] * out["parameters"]["wpoly6_coefficient"]
-    out["parameters"]["mass_mult_grad_wspiky_coefficient"] = out["parameters"]["mass"] * out["parameters"]["grad_wspiky_coefficient"]
-    out["parameters"]["mass_mult_divgrad_viscosity_coefficient"] = out["parameters"]["mass"]  * out["parameters"]["divgrad_wviscosity_coefficient"]
-    out["parameters"]["surf_tens_coeff"] = out["parameters"]["mass_mult_wpoly6_coefficient"] * out["parameters"]["simulation_scale"]
+    out["parameters"]["beta"] = (out["parameters"]["time_step"] ** 2) * (
+        out["parameters"]["mass"] ** 2) * 2 / (out["parameters"]["rho0"] ** 2)
+    out["parameters"]["wpoly6_coefficient"] = 315.0 / \
+        (64.0 * math.pi * math.pow(h *
+         out["parameters"]["simulation_scale"], 9.0))
+    out["parameters"]["grad_wspiky_coefficient"] = -45.0 / \
+        (math.pi * math.pow((h * out["parameters"]["simulation_scale"]), 6.0))
+    out["parameters"]["divgrad_wviscosity_coefficient"] = - \
+        out["parameters"]["grad_wspiky_coefficient"]
+    out["parameters"]["mass_mult_wpoly6_coefficient"] = out["parameters"]["mass"] * \
+        out["parameters"]["wpoly6_coefficient"]
+    out["parameters"]["mass_mult_grad_wspiky_coefficient"] = out["parameters"]["mass"] * \
+        out["parameters"]["grad_wspiky_coefficient"]
+    out["parameters"]["mass_mult_divgrad_viscosity_coefficient"] = out["parameters"]["mass"] * \
+        out["parameters"]["divgrad_wviscosity_coefficient"]
+    out["parameters"]["surf_tens_coeff"] = out["parameters"]["mass_mult_wpoly6_coefficient"] * \
+        out["parameters"]["simulation_scale"]
     out["parameters"]["delta"] = calc_delta(out["parameters"])
 
-    out["parameters"]["gravity_x"] =  0.0
-    out["parameters"]["gravity_y"] =  -9.8
+    out["parameters"]["gravity_x"] = 0.0
+    out["parameters"]["gravity_y"] = -9.8
     out["parameters"]["gravity_z"] = 0.0
     out["parameters"]["mu"] = 0.1 * 0.00004
 
-    
+
 def gen_model(x_dim, y_dim, z_dim, file_name="tmp") -> int:
     particle_count = 0
     h = 3.34
@@ -109,7 +130,8 @@ def gen_model(x_dim, y_dim, z_dim, file_name="tmp") -> int:
     for x in gen(4 * r0, h * x_dim * 5/7 - 4 * r0, r0):
         for y in gen(4 * r0, h * y_dim - 4 * r0, r0):
             for z in gen(4 * r0, h * z_dim - 4 * r0, r0):
-                out['model'].append(make_particle(pos=[x, y, z, 1.0], type=ParticleType.LIQUID, mass=MASS))
+                out['model'].append(make_particle(
+                    pos=[x, y, z, 1.0], type=ParticleType.LIQUID, mass=MASS))
 
     # fp = open("model.json", 'w')
     # json.dump(out, fp)
@@ -121,8 +143,7 @@ def gen_model(x_dim, y_dim, z_dim, file_name="tmp") -> int:
     print(len(out['model']), "particles generated")
     # fp.close()
     old_old_gen(out)
-    #old_gen(out1)
-    
+    # old_gen(out1)
 
 
 def old_gen(model, file_name="model.txt") -> int:
@@ -138,7 +159,8 @@ def old_gen(model, file_name="model.txt") -> int:
     fp.close()
     return len(model['model'])
 
-def old_old_gen(model, file_name="14M.txt"):
+
+def old_old_gen(model, file_name="8x8x8.txt"):
     fp = open(file_name, 'w')
     fp.write("parameters[\n")
     for p in model["parameters"]:
@@ -165,21 +187,24 @@ def old_old_gen(model, file_name="14M.txt"):
     fp.write("]\n")
     fp.close()
 
+
 def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
-    nx = int( x_dim * h / r0 )  # Numbers of boundary particles on X-axis
-    ny = int( y_dim * h / r0 )  # Numbers of boundary particles on Y-axis
-    nz = int( z_dim * h / r0 )  # Numbers of boundary particles on Z-axis
+    nx = int(x_dim * h / r0)  # Numbers of boundary particles on X-axis
+    ny = int(y_dim * h / r0)  # Numbers of boundary particles on Y-axis
+    nz = int(z_dim * h / r0)  # Numbers of boundary particles on Z-axis
     # 1 - top and bottom
     for ix in range(nx):
         for iy in range(ny):
-            if ( ( ix == 0 ) or ( ix == nx - 1) ) or ( (iy == 0) or (iy == ny - 1 ) ) :
-                if ( ( ix == 0 ) or ( ix == nx - 1 ) ) and ( ( iy == 0 ) or ( iy == ny - 1 ) ): #corners
+            if ((ix == 0) or (ix == nx - 1)) or ((iy == 0) or (iy == ny - 1)):
+                if ((ix == 0) or (ix == nx - 1)) and ((iy == 0) or (iy == ny - 1)):  # corners
                     x = ix * r0 + r0 / 2.0
                     y = iy * r0 + r0 / 2.0
                     z = 0.0 * r0 + r0 / 2.0
-                    vel_x = ( 1.0 * float( ix == 0 ) - 1.0 * float( ix == nx - 1 ) ) / math.sqrt( 3.0 )
-                    vel_y = ( 1.0 * float( iy == 0 ) - 1.0 * float( iy == ny - 1 ) ) / math.sqrt( 3.0 )
-                    vel_z = 1.0 / math.sqrt( 3.0 )
+                    vel_x = (1.0 * float(ix == 0) - 1.0 *
+                             float(ix == nx - 1)) / math.sqrt(3.0)
+                    vel_y = (1.0 * float(iy == 0) - 1.0 *
+                             float(iy == ny - 1)) / math.sqrt(3.0)
+                    vel_z = 1.0 / math.sqrt(3.0)
                     particles['model'].append(
                         make_particle(
                             pos=[x, y, z, 1.0],
@@ -191,9 +216,11 @@ def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
                     x = ix * r0 + r0 / 2.0
                     y = iy * r0 + r0 / 2.0
                     z = (nz - 1.0) * r0 + r0 / 2.0
-                    vel_x = ( 1.0 * float( ix == 0 ) - 1.0 * float( ix == nx - 1 ) ) / math.sqrt( 3.0 )
-                    vel_y = ( 1.0 * float( iy == 0 ) - 1.0 * float( iy == ny - 1 ) ) / math.sqrt( 3.0 )
-                    vel_z = -1.0 / math.sqrt( 3.0 )
+                    vel_x = (1.0 * float(ix == 0) - 1.0 *
+                             float(ix == nx - 1)) / math.sqrt(3.0)
+                    vel_y = (1.0 * float(iy == 0) - 1.0 *
+                             float(iy == ny - 1)) / math.sqrt(3.0)
+                    vel_z = -1.0 / math.sqrt(3.0)
                     particles['model'].append(
                         make_particle(
                             pos=[x, y, z, 1.0],
@@ -201,13 +228,15 @@ def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
                             type=ParticleType.BOUND,
                         )
                     )
-                else: #edges
+                else:  # edges
                     x = ix * r0 + r0 / 2.0
                     y = iy * r0 + r0 / 2.0
-                    z = 0.0 *r0 + r0 / 2.0
-                    vel_x = ( 1.0 * ( float( ix == 0 ) - float( ix == nx - 1 ) ) ) / math.sqrt( 2.0 )
-                    vel_y = ( 1.0 * ( float( iy == 0 ) - float( iy == ny - 1 ) ) ) / math.sqrt( 2.0 )
-                    vel_z = 1.0 / math.sqrt( 2.0 )
+                    z = 0.0 * r0 + r0 / 2.0
+                    vel_x = (1.0 * (float(ix == 0) -
+                             float(ix == nx - 1))) / math.sqrt(2.0)
+                    vel_y = (1.0 * (float(iy == 0) -
+                             float(iy == ny - 1))) / math.sqrt(2.0)
+                    vel_z = 1.0 / math.sqrt(2.0)
                     particles['model'].append(
                         make_particle(
                             pos=[x, y, z, 1.0],
@@ -218,9 +247,11 @@ def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
                     x = ix * r0 + r0 / 2.0
                     y = iy * r0 + r0 / 2.0
                     z = (nz - 1.0) * r0 + r0 / 2.0
-                    vel_x = ( 1.0 * ( float( ix == 0 ) - float( ix == nx - 1 ) ) ) / math.sqrt( 2.0 )
-                    vel_y = ( 1.0 * ( float( iy == 0 ) - float( iy == ny - 1 ) ) ) / math.sqrt( 2.0 )
-                    vel_z = -1.0 / math.sqrt( 2.0 )
+                    vel_x = (1.0 * (float(ix == 0) -
+                             float(ix == nx - 1))) / math.sqrt(2.0)
+                    vel_y = (1.0 * (float(iy == 0) -
+                             float(iy == ny - 1))) / math.sqrt(2.0)
+                    vel_z = -1.0 / math.sqrt(2.0)
                     particles['model'].append(
                         make_particle(
                             pos=[x, y, z, 1.0],
@@ -228,7 +259,7 @@ def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
                             type=ParticleType.BOUND,
                         )
                     )
-            else: #planes
+            else:  # planes
                 x = ix * r0 + r0 / 2.0
                 y = iy * r0 + r0 / 2.0
                 z = 0.0 * r0 + r0 / 2.0
@@ -256,17 +287,19 @@ def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
                         type=ParticleType.BOUND,
                     )
                 )
-    #2 - side walls OX-OZ and opposite
+    # 2 - side walls OX-OZ and opposite
     for ix in range(nx):
-        for iz in range(1,nz - 1):
+        for iz in range(1, nz - 1):
             if (ix == 0) or (ix == nx - 1):
                 x = ix * r0 + r0 / 2.0
                 y = 0.0 * r0 + r0 / 2.0
                 z = iz * r0 + r0 / 2.0
                 #vel_x = 0.0
-                vel_x = ( 1.0 * ( float( ix == 0 ) - float( ix == nx - 1 ) ) ) / math.sqrt( 2.0 )
+                vel_x = (1.0 * (float(ix == 0) - float(ix == nx - 1))
+                         ) / math.sqrt(2.0)
                 vel_y = 1.0 / math.sqrt(2.0)
-                vel_z = 1.0 * ( float( iz == 0 ) - float(iz == nz - 1 ) ) / math.sqrt(2.0)
+                vel_z = 1.0 * (float(iz == 0) -
+                               float(iz == nz - 1)) / math.sqrt(2.0)
                 particles['model'].append(
                     make_particle(
                         pos=[x, y, z, 1.0],
@@ -275,12 +308,14 @@ def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
                     )
                 )
                 x = ix * r0 + r0 / 2.0
-                y = ( ny - 1 ) * r0 + r0 / 2.0
+                y = (ny - 1) * r0 + r0 / 2.0
                 z = iz * r0 + r0 / 2.0
                 #vel_x = 0.0
-                vel_x = ( 1.0 * ( float( ix == 0 ) - float( ix == nx - 1 ) ) ) / math.sqrt( 2.0 )
+                vel_x = (1.0 * (float(ix == 0) - float(ix == nx - 1))
+                         ) / math.sqrt(2.0)
                 vel_y = -1.0 / math.sqrt(2.0)
-                vel_z = 1.0 * (float(iz == 0) - float(iz == nz - 1)) / math.sqrt(2.0)
+                vel_z = 1.0 * (float(iz == 0) -
+                               float(iz == nz - 1)) / math.sqrt(2.0)
 
                 particles['model'].append(
                     make_particle(
@@ -305,7 +340,7 @@ def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
                     )
                 )
                 x = ix * r0 + r0 / 2.0
-                y = ( ny - 1 ) * r0 + r0 / 2.0
+                y = (ny - 1) * r0 + r0 / 2.0
                 z = iz * r0 + r0 / 2.0
                 vel_x = 0.0
                 vel_y = -1.0
@@ -318,9 +353,9 @@ def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
                     )
                 )
 
-    # #3 - side walls OY-OZ and opposite
+    #3 - side walls OY-OZ and opposite
     for iy in range(1, ny - 1):
-        for iz in range(1,nz - 1):
+        for iz in range(1, nz - 1):
             x = 0.0 * r0 + r0 / 2.0
             y = iy * r0 + r0 / 2.0
             z = iz * r0 + r0 / 2.0
@@ -350,13 +385,14 @@ def draw_bounds(particles, x_dim, y_dim, z_dim, h, r0):
                 )
             )
 
+
 def main():
     #gen_model(1, 1, 1)
-    #gen_model(8, 8, 8)
+    gen_model(8, 8, 8)
     #gen_model(128, 128, 128)
-    
-    #gen_model(192, 96, 96) # 9M
-    gen_model(192, 120, 120) # 9M
+
+    # gen_model(192, 96, 96) # 9M
+    # gen_model(192, 120, 120)  # 9M
     #gen_model(48, 24, 24)
     #gen_model(96, 96, 96)
 
